@@ -119,19 +119,22 @@ else()
     endif()
 
     if(ENABLE_GLES)
-        if(NOT CMAKE_SYSTEM_NAME STREQUAL Linux)
-            message(FATAL_ERROR "OpenGL ES 3 support is currently only available for Linux platforms.")
+        if(CMAKE_SYSTEM_NAME STREQUAL Linux)
+            # We use a local find script for OpenGL::GLES3 until the proposed changes are merged upstream.
+            list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/gles")
+            find_package(OpenGL REQUIRED COMPONENTS GLES3)
+            if(NOT TARGET OpenGL::GLES3)
+                message(FATAL_ERROR "No suitable GLES3 library was found.")
+            endif()
+
+            set(PROJECTM_OPENGL_LIBRARIES OpenGL::GLES3)
+            set(USE_GLES ON)
+        elseif (CMAKE_SYSTEM_NAME STREQUAL iOS)
+            set(USE_GLES ON)
+        else()
+            message(FATAL_ERROR "OpenGL ES 3 support is currently only available for Linux  and iOS platforms. Building for ${CMAKE_SYSTEM_NAME}.")
         endif()
 
-        # We use a local find script for OpenGL::GLES3 until the proposed changes are merged upstream.
-        list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/gles")
-        find_package(OpenGL REQUIRED COMPONENTS GLES3)
-        if(NOT TARGET OpenGL::GLES3)
-            message(FATAL_ERROR "No suitable GLES3 library was found.")
-        endif()
-
-        set(PROJECTM_OPENGL_LIBRARIES OpenGL::GLES3)
-        set(USE_GLES ON)
     else()
         find_package(OpenGL REQUIRED)
         set(PROJECTM_OPENGL_LIBRARIES OpenGL::GL)

@@ -106,6 +106,14 @@ target_include_directories(projectM
         "$<INSTALL_INTERFACE:${PROJECTM_INCLUDE_DIR}>"
         )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    target_link_libraries(projectM
+            PUBLIC
+            "-framework CoreFoundation"
+            "-framework OpenGLES"
+            )
+endif()
+
 target_link_libraries(projectM
         PUBLIC
         ${PROJECTM_OPENGL_LIBRARIES}
